@@ -43,5 +43,5 @@ def register(request):
         profile_form = ProfileForm()
         return render(request, 'kubsu/reg.html', {
             'user_form': user_form,
-            'profile_form': profile_form
+            'profile_form': profile_form,
             })
