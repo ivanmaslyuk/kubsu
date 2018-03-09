@@ -1,0 +1,9 @@
+<form method="post">
+    {% csrf_token %}
+    <h3>Данные для дальнецшего доступа к вашим данным:</h3>
+    {{ user_form.as_p }}
+    <h3>Информация о студенте:</h3>
+    {{ profile_form.as_p }}
+    <br>
+    <input type="submit" value="Регистрация">
+</form>
