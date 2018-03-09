@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 
 from .forms import UserForm, ProfileForm
 
@@ -14,7 +15,7 @@ def register(request):
     # значит нужно обработать данные для регистрации.
     if request.method == 'POST':
         # Создаем экземпляры форм и заполняем их полученной информацией.
-        user_form = UserForm(request.POST)
+        user_form = UserCreationForm(request.POST)
         profile_form = ProfileForm(request.POST)
         # Если все данные в формах валидны (ни в одном поле нет недопустимых значений,
         # например, уже существующее имя пользователя или слишком короткий пароль),
@@ -39,7 +40,7 @@ def register(request):
     # Если же использовался метод get, значит он еще не отправлял форму.
     # Инициализируем пустые формы и рендерим с ними страницу регистрации.
     else:
-        user_form = UserForm()
+        user_form = UserCreationForm()
         profile_form = ProfileForm()
         return render(request, 'kubsu/reg.html', {
             'user_form': user_form,
