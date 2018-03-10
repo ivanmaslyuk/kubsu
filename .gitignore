@@ -1,0 +1,4 @@
+.vscode/
+mywebsite/.vscode/
+mywebsite/__pycache__/
+mywebsite/kubsu/__pycache__
