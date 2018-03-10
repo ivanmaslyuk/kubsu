@@ -29,7 +29,7 @@ def register(request):
             profile_form = ProfileForm(request.POST, instance=user_instance.profile)
             profile_form.save()
             return HttpResponse('вы зарегистрированы') # временное решение
-        # Тупой юзверь накосячил. Даем ему по ебалу.
+        # Пользователь ввел неправильные данные.
         else:
             # Рендерим страницу регистрации, передаем туда заполненные формы, чтобы
             # пользователю не приходилось по 300 раз вводить одно и то же.
