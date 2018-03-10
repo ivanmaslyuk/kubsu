@@ -1,6 +1,7 @@
 from django.forms import ModelForm
 from django.contrib.auth.models import User
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
 
 from .models import Profile
 
@@ -45,3 +46,23 @@ class ProfileForm(forms.ModelForm):
             'path',
             'course'
         )
+
+class UserRegistrationForm(UserCreationForm):
+    first_name = forms.CharField(max_length=40, label='Имя')
+    last_name = forms.CharField(max_length=40, label='Фамилия')
+
+    class Meta:
+        model = User
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+        )
+    
+    def save(self, commit=True):
+        user = super(UserRegistrationForm, self).save(commit=False)
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        if commit:
+            user.save()
+        return user
