@@ -5,6 +5,9 @@ from . import views
 app_name = 'kubsu'
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('register/', views.register, name='register')
+    path('auth/', views.auth, name='auth'),
+    path('', views.profile.as_view(), name='profile'),
+    path('logout-user/', views.logout_user, name='logout-user'),
+    path('compose/', views.compose, name='compose'),
+    path('delete-doc/', views.delete_doc, name='delete-doc')
 ]

@@ -3,5 +3,5 @@ mywebsite/.vscode/
 mywebsite/kubsu/__pycache__
 mywebsite/mywebsite/__pycache__
 mywebsite/kubsu/migrations
-mywebsite/kubsu/media
+mywebsite/media
 mywebsite/db.sqlite3

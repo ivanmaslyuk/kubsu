@@ -1,0 +1,35 @@
+{% extends "kubsu/default_layout.html" %}
+
+
+{% block title %}Профиль{% endblock %}
+
+{% block body %}
+<h1>Профиль</h1>
+<h3>Изменить личные данные</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ edit_profile_form.as_p }}
+    <input type="submit" value="Сохранить">
+</form>
+
+<a href="{% url 'kubsu:logout-user' %}">Выход из аккаунта</a><br>
+<a href="{% url 'kubsu:compose' %}">Сгенерировать заявление</a><br>
+
+<h3>Загрузить документ</h3>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ upload_document_form.as_p }}
+    <input type="submit" value="Загрузить">
+</form>
+
+{% for document in documents %}
+    <hr>
+    <p>
+        <img src="{{ document.file.url }}" alt="{{ document.title }}" width="300" height="200" style="object-fit:cover;">
+        <br>
+        {{ document.title }}
+        <br>
+        <a href="{% url 'kubsu:delete-doc' %}?doc_id={{ document.pk }}">Удалить</a>
+    </p>
+{% endfor %}
+{% endblock %}

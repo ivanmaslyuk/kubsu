@@ -1,19 +1,22 @@
+import docxtpl
+
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.views import View
+from django.conf import settings
 
-from .forms import ProfileForm, UserRegistrationForm
+from .models import Document
+from .forms import ProfileForm, UserRegistrationForm, DocumentForm
 
 
-def index(request):
-    return HttpResponse('hello world')
-
-
-def register(request):
+def auth(request):
     if request.user.is_authenticated:
-        return HttpResponse('вы уже зарегистрированы')
+        return redirect('kubsu:profile')
     # Если для открытия страницы использовался метод post,
     # значит нужно обработать данные для регистрации.
     if request.method == 'POST':
@@ -51,3 +54,60 @@ def register(request):
             'user_form': user_form,
             'profile_form': profile_form,
             })
+
+class profile(LoginRequiredMixin, View):
+    
+    # Страница, на которую будет перенаправлен пользователь, если он не вошел в систему.
+    login_url = 'kubsu:auth'
+
+    # Обрататывает get-запросы к странице.
+    def get(self, request, *args, **kwargs):
+        edit_profile_form = ProfileForm(instance=request.user.profile)
+        upload_document_form = DocumentForm()
+
+        documents = Document.objects.filter(owner=request.user.profile)
+
+        return render(request, 'kubsu/profile.html', {
+            'edit_profile_form': edit_profile_form,
+            'upload_document_form': upload_document_form,
+            'documents': documents,
+        })
+
+    # Обрабатывает post-запросы к странице.
+    def post(self, request, *args, **kwargs):
+        edit_profile_form = ProfileForm(request.POST)
+        upload_document_form = DocumentForm(request.POST, request.FILES)
+
+        # Обработка формы для обновления профиля.
+        if edit_profile_form.is_valid():
+            profile_form = ProfileForm(request.POST, instance=request.user.profile)
+            profile_form.save()
+            return self.get(request)
+
+        # Обработка формы для загрузки документов.
+        elif upload_document_form.is_valid():
+            upload_document_form.instance.owner = request.user.profile
+            upload_document_form.save()
+            return self.get(request)
+
+        if settings.DEBUG:
+            return HttpResponse('ни одна форма не прошла тест на валидность')
+        else:
+            return self.get(request)
+
+def logout_user(request):
+    logout(request)
+    return redirect('kubsu:auth')
+
+@login_required(login_url='kubsu:auth')
+def compose(request):
+    return HttpResponse('Сгенерированный документ')
+
+@login_required(login_url='kubsu:auth')
+def delete_doc(request):
+    try:
+        doc_id = int(request.GET['doc_id'])
+        doc = Document.objects.get(pk=doc_id, owner=request.user.profile)
+        doc.delete()
+    finally:
+        return redirect('kubsu:profile')

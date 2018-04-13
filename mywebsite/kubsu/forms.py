@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import Profile
+from .models import Profile, Document
 
 
 """
@@ -42,27 +42,34 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = (
-            'faculty',
-            'path',
-            'course'
-        )
-
-class UserRegistrationForm(UserCreationForm):
-    first_name = forms.CharField(max_length=40, label='Имя')
-    last_name = forms.CharField(max_length=40, label='Фамилия')
-
-    class Meta:
-        model = User
-        fields = (
             'first_name',
             'last_name',
-            'username',
+            'father_name',
+            'faculty',
+            'path',
+            'course',
+        )
+
+class DocumentForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = (
+            'file',
         )
     
     def save(self, commit=True):
-        user = super(UserRegistrationForm, self).save(commit=False)
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
+        doc = super(DocumentForm, self).save(commit=False)
+        doc.title = self.cleaned_data['file'].name
         if commit:
-            user.save()
-        return user
+            doc.save()
+        return doc
+
+
+# Наследуем для формы регистрации от стандартной джанговской формы рег-ции,
+# потому что она автоматически дает нам правильные поля для пароля и подтверждения пароля.
+class UserRegistrationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = (
+            'username',
+        )

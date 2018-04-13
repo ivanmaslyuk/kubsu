@@ -1,3 +1,6 @@
+import os
+import time
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -20,6 +23,16 @@ class Profile(models.Model):
         choices=FACULTY_CHOICES,
         )
 
+    def get_full_name(self):
+        return '{0} {1} {2}'.format(
+            self.last_name if self.last_name != '' else 'ФАМИЛИЯ',
+            self.first_name if self.first_name != '' else 'ИМЯ',
+            self.father_name if self.father_name != '' else 'ОТЧЕСТВО'
+        )
+    
+    first_name = models.CharField(max_length=50, verbose_name='Имя')
+    last_name = models.CharField(max_length=50, verbose_name='Фамилия')
+    father_name = models.CharField(max_length=50, verbose_name='Отчество')
     path = models.CharField(max_length=250, verbose_name='Направление') # направление
     course = models.IntegerField(default=1, verbose_name='Курс') # курс
     
@@ -28,7 +41,7 @@ class Profile(models.Model):
             return 'Администратор {}'.format(self.user.username)
         else:
             return '{0} ({1}, {2}, {3} курс)'.format(
-                    self.user.get_full_name(), 
+                    self.get_full_name(), 
                     self.faculty if self.faculty != '' else 'не задан факультет',
                     self.path if self.path != '' else 'не задано направление',
                     self.course
@@ -48,4 +61,15 @@ def save_user_profile(sender, instance, **kwargs):
 
 class Document(models.Model):
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    file = models.FileField(verbose_name='Выберите файл', upload_to='documents')
+    title = models.CharField(max_length=300)
 
+    def __str__(self):
+        prof = self.owner
+        return '{0} ({1}, {2}, {3}, {4} курс)'.format(
+            self.title,
+            prof.get_full_name(),
+            prof.faculty,
+            prof.path,
+            prof.course,
+        )
