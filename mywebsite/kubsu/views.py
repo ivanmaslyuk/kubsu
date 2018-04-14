@@ -1,5 +1,9 @@
-import docxtpl
+import os
+import time
 
+from docxtpl import DocxTemplate
+
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
@@ -101,6 +105,15 @@ def logout_user(request):
 
 @login_required(login_url='kubsu:auth')
 def compose(request):
+    template_path = os.path.join(settings.BASE_DIR, 'kubsu/templates/kubsu/zayav_template.docx')
+    file_name = request.user.username + '_' + str(int(time.time())) + '.docx'
+    file_path = os.path.join(settings.MEDIA_ROOT, 'pleas/' + file_name)
+    doc = DocxTemplate(template_path)
+    context = {
+        'profile': request.user.profile,
+    }
+    doc.render(context)
+    doc.save(file_path)
     return HttpResponse('Сгенерированный документ')
 
 @login_required(login_url='kubsu:auth')
