@@ -1,6 +1,7 @@
 import os
 import time
 
+from PyPDF2 import PdfFileReader
 from docxtpl import DocxTemplate
 
 from django.conf import settings
@@ -105,15 +106,20 @@ def logout_user(request):
 
 @login_required(login_url='kubsu:auth')
 def compose(request):
-    template_path = os.path.join(settings.BASE_DIR, 'kubsu/templates/kubsu/zayav_template.docx')
-    file_name = request.user.username + '_' + str(int(time.time())) + '.docx'
-    file_path = os.path.join(settings.MEDIA_ROOT, 'pleas/' + file_name)
-    doc = DocxTemplate(template_path)
-    context = {
+    template_path = os.path.join(settings.BASE_DIR, 'kubsu/templates/kubsu/plea_template.docx')
+    plea_path = os.path.join(settings.MEDIA_ROOT, 'pleas')
+
+    docx_name = os.path.join(docx_path, request.user.username + '.docx')
+    doc = DocxTemplate(docx_name)
+    doc.render({
         'profile': request.user.profile,
-    }
-    doc.render(context)
-    doc.save(file_path)
+    })
+    doc.save(docx_path)
+
+    pdf_name = request.user.username + '.pdf'
+
+    inputPdf = PdfFileReader(open(''))
+
     return HttpResponse('Сгенерированный документ')
 
 @login_required(login_url='kubsu:auth')
